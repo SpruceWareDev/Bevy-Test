@@ -1,18 +1,30 @@
 use bevy::{
-    prelude::*,
-    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
+    input::mouse::MouseMotion, prelude::*, sprite::{MaterialMesh2dBundle, Mesh2dHandle}
 };
 
+mod utils;
+
 const PLAYER_SPEED: f32 = 100.0;
+const REGULAR_BULLET_SPEED: f32 = 150.0;
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Component)]
+pub struct Health(u8);
+
+#[derive(Component)]
+pub struct Projectile {
+    speed: f32,
+    dx: f32,
+    dy: f32,
+}
 
 fn main() {
     App::new()
     .add_plugins(DefaultPlugins)
     .add_systems(Startup, init)
-    .add_systems(Update, move_player)
+    .add_systems(Update, (move_player, shoot))
     .run();
 }
 
@@ -33,6 +45,7 @@ fn init(
             ..default()
         },
         Player,
+        Health(100),
     ));
 }
 
@@ -52,5 +65,18 @@ fn move_player(
         player_transform.translation.y += PLAYER_SPEED * time.delta_seconds();
     } else if key_input.pressed(KeyCode::ArrowDown) {
         player_transform.translation.y -= PLAYER_SPEED * time.delta_seconds();
+    }
+}
+
+fn shoot(
+    mut commands: Commands,
+    query: Query<&Transform, With<Player>>,
+    mut mouse_motion_events: EventReader<MouseMotion>,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
+) {
+    let player_transform = query.single();
+    
+    if mouse_button_input.pressed(MouseButton::Left) {
+        let events = mouse_motion_events.read();
     }
 }
