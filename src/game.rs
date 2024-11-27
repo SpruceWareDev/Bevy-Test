@@ -21,6 +21,9 @@ pub struct Projectile {
 #[derive(Component)]
 pub struct Bullet;
 
+#[derive(Component)]
+pub struct Collider(pub Rectangle); 
+
 pub fn init(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -36,6 +39,7 @@ pub fn init(
         },
         Player,
         Health(100),
+        Collider(Rectangle::new(50.0, 60.0)),
     ));
 }
 
@@ -99,6 +103,7 @@ pub fn shoot(
                     dy: bullet_dy,
                 },
                 Bullet,
+                Collider(Rectangle::new(10.0, 10.0)),
             ));
         } 
     }
@@ -111,5 +116,23 @@ pub fn update_bullets(
     for (mut transform, projectile) in &mut bullet_query {
         transform.translation.x += projectile.dx * projectile.speed * time.delta_seconds();
         transform.translation.y += projectile.dy * projectile.speed * time.delta_seconds();
+    }
+}
+
+pub fn handle_bullet_collisions(
+    health_transforms: Query<(&Transform, &Collider, &Health)>,
+    bullets: Query<(&Transform, &Bullet)>,
+) {
+    for (bullet_transform, bullet) in &bullets {
+        let bullet_x = bullet_transform.translation.x;
+        let bullet_y = bullet_transform.translation.y;
+        for (object_transform, object_collider, health) in &health_transforms {
+            let object_x = object_transform.translation.x;
+            let object_y = object_transform.translation.y;
+
+            if bullet_x > object_x && bullet_y > object_y && bullet_x < (object_x + object_collider.0.size().x) && bullet_y < (object_y + object_collider.0.size().y) {
+                println!("Collision!");
+            }
+        }
     }
 }

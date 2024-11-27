@@ -10,9 +10,10 @@ fn main() {
         (
             bevy_test::game::move_player, 
             bevy_test::game::shoot, 
-            bevy_test::game::update_bullets
+            bevy_test::game::update_bullets,
+            bevy_test::game::handle_bullet_collisions,
         )
-    )
+    )   
     .run();
 }
 
